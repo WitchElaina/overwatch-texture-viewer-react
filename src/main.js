@@ -73,6 +73,7 @@ app.controller('RootCtrl', ['$scope', '$http', '$location', '$filter', function(
       })
 
       vm.totalItems = vm.textures.length
+      console.log('Loaded textures', vm.textures)
     } catch (err) {
       console.error('Failed to load textures', err)
       vm.loadError = true
