@@ -13,11 +13,12 @@ app.config(function($sceProvider, $compileProvider, $locationProvider) {
   $compileProvider.debugInfoEnabled(false) // more perf
 })
 
-app.controller('RootCtrl', ['$scope', '$http', '$location', '$filter', function($scope, $http, $location, $filter) {
+app.controller('RootCtrl', ['$scope', '$http', '$location', function($scope, $http, $location) {
   const vm = this
   this.loading = true
   this.loadError = false
   this.textures = []
+  this.versions = []
 
   const DEFAULT_PAGE_SIZE = 1000
 
@@ -27,6 +28,8 @@ app.controller('RootCtrl', ['$scope', '$http', '$location', '$filter', function(
   this.currentPage = +query.page || 1
   this.totalItems = 0
   this.isLargeImage = false
+  this.filterVersion = 0
+  this.filterState = 0
 
   this.onPageSizeChange = () => {
     $location.search('pageSize', this.pageSize === DEFAULT_PAGE_SIZE ? null : this.pageSize)
@@ -38,6 +41,14 @@ app.controller('RootCtrl', ['$scope', '$http', '$location', '$filter', function(
 
   this.onPageChange = () => {
     $location.search('page', this.currentPage === 1 ? null : this.currentPage)
+  }
+
+  this.onVersionChange = () => {
+    $location.search('version', this.filterVersion === 0 ? null : this.filterVersion)
+  }
+
+  this.onStateChange = () => {
+    $location.search('state', this.filterState === 0 ? null : this.filterState)
   }
 
   this.toggleImageSize = () => {
@@ -61,16 +72,65 @@ app.controller('RootCtrl', ['$scope', '$http', '$location', '$filter', function(
     copyToClipboard(item.id)
   }
 
+  this.texturesFilter = item => {
+    let shouldShow = true
+
+    if (this.searchText) {
+      const searchText = this.searchText.toLowerCase()
+      shouldShow = item.id.includes(searchText) || item.id_raw.toString() === searchText
+    }
+
+    if (this.filterState > 0 && this.filterVersion > 0) {
+      if (this.filterState === 2) {
+        shouldShow = item.version_removed_id === this.filterVersion
+      } else {
+        shouldShow = item.version_added_id === this.filterVersion
+      }
+    } else {
+      if (shouldShow && this.filterVersion > 0) {
+        shouldShow = item.version_added_id === this.filterVersion
+      }
+
+      if (shouldShow && this.filterState > 0) {
+        shouldShow = this.filterState === 2 ? item.is_removed : item.is_new
+      }
+    }
+
+    return shouldShow
+  }
+
+  function getTextureId(id) {
+    const hexId = id.toString(16).toUpperCase()
+    return hexId.padStart(12, '0')
+  }
+
   vm.$onInit = async () => {
     try {
-      const response = await $http.get('https://assets.overwatchitemtracker.com/data/textures.json')
+      const response = await $http.get('https://assets.overwatchitemtracker.com/data/texture_info.json')
 
-      vm.textures = response.data.map(x => {
+      const textureInfo = response.data
+      vm.textures = textureInfo.textures.map((texId, i) => {
+        const textureId = getTextureId(texId)
+        const versionAddedId = textureInfo.tex_ver_added[i]
+        const versionRemovedId = textureInfo.tex_ver_removed[i]
+
         return {
-          id: x,
-          url: vm.getImageUrl(x)
+          id: textureId,
+          id_raw: texId,
+          version_added_id: versionAddedId,
+          version_removed_id: versionRemovedId,
+          version_added: textureInfo.versions[versionAddedId - 1],
+          version_removed: textureInfo.versions[versionRemovedId - 1],
+          is_removed: versionRemovedId !== 0,
+          is_new: versionAddedId === textureInfo.versions.length,
+          url: vm.getImageUrl(textureId)
         }
       })
+
+      this.versions = [
+        { id: 0, name: 'All' },
+        ...textureInfo.versions.map((name, i) => ({ id: i + 1, name }))
+      ]
 
       vm.totalItems = vm.textures.length
       console.log('Loaded textures', vm.textures)

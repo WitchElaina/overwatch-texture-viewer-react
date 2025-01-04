@@ -49,6 +49,10 @@
       max-height: 100%;
     }
 
+    .texture-removed {
+      border: 1px solid rgba(164, 63, 75, 1);
+    }
+
     .card-texture:hover {
       transform: scale(1.8);
       z-index: 200;
@@ -98,8 +102,24 @@
     <div class="container-fluid text-center" style="max-width: 2200px;">
       <form class="justify-content-center gap-3 d-flex mb-4">
         <div class="span4-5">
-          <label class="form-label mb-1">Filter</label>
+          <label class="form-label mb-1">Search</label>
           <input type="text" class="form-control mb-3 mx-auto avatar-search" placeholder="Search for texture..." ng-model="$vm.searchText" ng-change="$vm.onSearchChange()">
+        </div>
+
+        <div style="width: 150px;">
+          <label class="form-label mb-1">Version</label>
+          <select class="form-select form-select" ng-model="$vm.filterVersion" ng-disabled="$vm.loading" ng-change="$vm.onVersionChange()">
+            <option ng-repeat="version in $vm.versions" ng-value="version.id">{{::version.name}}</option>
+          </select>
+        </div>
+
+        <div style="width: 150px;">
+          <label class="form-label mb-1">State</label>
+          <select class="form-select form-select" ng-model="$vm.filterState" ng-disabled="$vm.loading" ng-change="$vm.onStateChange()">
+            <option ng-value="0">All</option>
+            <option ng-value="1">New</option>
+            <option ng-value="2">Removed</option>
+          </select>
         </div>
 
         <div style="width: 150px;">
@@ -136,7 +156,8 @@
 
         <div class="d-flex flex-wrap justify-content-center gap-2 user-select-none mb-5" ng-class="{ 'large-img': $vm.isLargeImage }">
           <div class="card card-texture card-clickable text-decoration-none d-flex flex-column justify-content-between align-items-center"
-               ng-repeat="item in items = ($vm.textures | filter:$vm.searchText) | start: ($vm.currentPage - 1) * $vm.pageSize | limitTo: $vm.pageSize track by item.id"
+               ng-class="{ 'texture-removed': item.is_removed }"
+               ng-repeat="item in items = ($vm.textures | filter:$vm.texturesFilter) | start: ($vm.currentPage - 1) * $vm.pageSize | limitTo: $vm.pageSize track by item.id"
                ng-click="$vm.clickItem(item)">
 
             <div class="image-container d-flex justify-content-center align-items-center flex-grow-1">
