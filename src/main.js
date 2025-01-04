@@ -28,8 +28,8 @@ app.controller('RootCtrl', ['$scope', '$http', '$location', function($scope, $ht
   this.currentPage = +query.page || 1
   this.totalItems = 0
   this.isLargeImage = false
-  this.filterVersion = 0
-  this.filterState = 0
+  this.filterVersion = +query.version || 0
+  this.filterState = +query.state || 0
 
   this.onPageSizeChange = () => {
     $location.search('pageSize', this.pageSize === DEFAULT_PAGE_SIZE ? null : this.pageSize)
