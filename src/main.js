@@ -70,6 +70,7 @@ app.controller('RootCtrl', ['$scope', '$http', '$location', function($scope, $ht
 
   this.clickItem = item => {
     copyToClipboard(item.id)
+    console.log(item)
   }
 
   this.texturesFilter = item => {
@@ -83,6 +84,8 @@ app.controller('RootCtrl', ['$scope', '$http', '$location', function($scope, $ht
     if (this.filterState > 0 && this.filterVersion > 0) {
       if (this.filterState === 2) {
         shouldShow = item.version_removed_id === this.filterVersion
+      } else if (this.filterState === 3) {
+        shouldShow = item.version_updated_id === this.filterVersion
       } else {
         shouldShow = item.version_added_id === this.filterVersion
       }
@@ -92,7 +95,7 @@ app.controller('RootCtrl', ['$scope', '$http', '$location', function($scope, $ht
       }
 
       if (shouldShow && this.filterState > 0) {
-        shouldShow = this.filterState === 2 ? item.is_removed : item.is_new
+        shouldShow = this.filterState === 2 ? item.is_removed : this.filterState === 3 ? item.is_updated : item.is_new
       }
     }
 
@@ -113,16 +116,20 @@ app.controller('RootCtrl', ['$scope', '$http', '$location', function($scope, $ht
         const textureId = getTextureId(texId)
         const versionAddedId = textureInfo.tex_ver_added[i]
         const versionRemovedId = textureInfo.tex_ver_removed[i]
+        const versionUpdatedId = textureInfo.tex_ver_updated[i]
 
         return {
           id: textureId,
           id_raw: texId,
           version_added_id: versionAddedId,
           version_removed_id: versionRemovedId,
+          version_updated_id: versionUpdatedId,
           version_added: textureInfo.versions[versionAddedId - 1],
           version_removed: textureInfo.versions[versionRemovedId - 1],
+          version_updated: textureInfo.versions[versionUpdatedId - 1],
           is_removed: versionRemovedId !== 0,
           is_new: versionAddedId === textureInfo.versions.length,
+          is_updated: versionUpdatedId === textureInfo.versions.length,
           url: vm.getImageUrl(textureId)
         }
       })
