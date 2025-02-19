@@ -28,7 +28,7 @@ app.controller('RootCtrl', ['$scope', '$http', '$location', function($scope, $ht
   this.currentPage = +query.page || 1
   this.totalItems = 0
   this.isLargeImage = false
-  this.filterVersion = +query.version || 0
+  this.filterVersion = 0
   this.filterState = +query.state || 0
 
   this.onPageSizeChange = () => {
@@ -44,7 +44,7 @@ app.controller('RootCtrl', ['$scope', '$http', '$location', function($scope, $ht
   }
 
   this.onVersionChange = () => {
-    $location.search('version', this.filterVersion === 0 ? null : this.filterVersion)
+    $location.search('version', this.filterVersion === 0 ? null : getVersionName(this.filterVersion))
   }
 
   this.onStateChange = () => {
@@ -53,6 +53,14 @@ app.controller('RootCtrl', ['$scope', '$http', '$location', function($scope, $ht
 
   this.toggleImageSize = () => {
     this.isLargeImage = !this.isLargeImage
+  }
+
+  function getVersionName(versionId) {
+    return versionId === 0 ? 'All' : vm.versions.find(v => v.id === versionId).name
+  }
+
+  function getVersionId(versionName) {
+    return vm.versions.find(v => v.name === versionName)?.id ?? 0
   }
 
   function copyToClipboard(text) {
@@ -139,6 +147,8 @@ app.controller('RootCtrl', ['$scope', '$http', '$location', function($scope, $ht
         ...textureInfo.versions.map((name, i) => ({ id: i + 1, name }))
       ]
 
+      // Set the filter version to the version id, we have to do this after the versions are loaded
+      vm.filterVersion = getVersionId(query.version)
       vm.totalItems = vm.textures.length
       console.log('Loaded textures', vm.textures)
     } catch (err) {
