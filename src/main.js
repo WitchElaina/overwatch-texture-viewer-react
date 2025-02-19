@@ -20,7 +20,7 @@ app.controller('RootCtrl', ['$scope', '$http', '$location', function($scope, $ht
   this.textures = []
   this.versions = []
 
-  const DEFAULT_PAGE_SIZE = 1000
+  const DEFAULT_PAGE_SIZE = 500
 
   const query = $location.search()
   this.searchText = query.q || ''
