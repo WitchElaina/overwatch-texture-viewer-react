@@ -86,7 +86,7 @@ app.controller('RootCtrl', ['$scope', '$http', '$location', function($scope, $ht
 
     if (this.searchText) {
       const searchText = this.searchText.toLowerCase()
-      shouldShow = item.id.includes(searchText) || item.id_raw.toString() === searchText
+      shouldShow = item.id.toLowerCase().includes(searchText) || item.id_raw.toString() === searchText
     }
 
     if (this.filterState > 0 && this.filterVersion > 0) {
