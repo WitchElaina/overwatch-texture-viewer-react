@@ -99,7 +99,7 @@ app.controller('RootCtrl', ['$scope', '$http', '$location', function($scope, $ht
       }
     } else {
       if (shouldShow && this.filterVersion > 0) {
-        shouldShow = item.version_added_id === this.filterVersion
+        shouldShow = item.version_added_id === this.filterVersion || item.version_removed_id === this.filterVersion || item.version_updated_id === this.filterVersion
       }
 
       if (shouldShow && this.filterState > 0) {
