@@ -24,8 +24,13 @@
       </div>
     </nav>
 
+    <div class="text-muted mb-3 text-center" style="font-size: 12px;">
+      Select a version to view all texture changes for that version. Filter by state to view only new, removed, or updated textures.<br>
+      A <span class="text-danger">red outline</span> means the texture was removed.
+    </div>
+
     <div class="container-fluid text-center" style="max-width: 2200px;">
-      <form class="justify-content-center gap-3 d-flex mb-4">
+      <form class="justify-content-center gap-3 d-flex mb-3">
         <div class="span4-5">
           <label class="form-label mb-1">Search</label>
           <input type="text" class="form-control mb-3 mx-auto avatar-search" placeholder="Search for texture..." ng-model="$vm.searchText" ng-change="$vm.onSearchChange()">
