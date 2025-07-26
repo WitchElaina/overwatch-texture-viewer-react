@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .card-texture {
+    @apply transition-transform duration-125 text-sm p-1.5 pb-1 cursor-pointer;
+    will-change: transform;
+  }
+  
+  .card-texture:hover {
+    @apply transform scale-[1.8] z-[200] shadow-2xl bg-gray-600;
+  }
+  
+  .texture-removed {
+    @apply border border-texture-removed;
+  }
+  
+  .image-container {
+    @apply relative flex justify-center items-center flex-grow;
+    width: 150px;
+    height: 96px;
+  }
+  
+  .large-img .image-container {
+    width: 210px;
+    height: 138px;
+  }
+  
+  @media (max-width: 768px) {
+    .image-container {
+      width: 110px;
+      height: 72px;
+    }
+    
+    .card-texture {
+      @apply p-1.5 pb-1;
+    }
+  }
+} 

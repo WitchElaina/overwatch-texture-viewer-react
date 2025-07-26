@@ -1,114 +1,13 @@
 <!DOCTYPE html>
-<html ng-app="YepTextures" lang="en" data-bs-theme="dark">
+<html lang="en" class="dark h-full">
 <head>
   <title>Overwatch Texture Viewer</title>
   <meta charset="utf-8">
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <link rel="stylesheet" crossorigin="anonymous" referrerpolicy="no-referrer" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
-  <link rel="stylesheet" href="css/main.css">
-  <script crossorigin="anonymous" referrerpolicy="no-referrer" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.3/angular.min.js"></script>
-  <script crossorigin="anonymous" referrerpolicy="no-referrer" src="https://cdn.jsdelivr.net/npm/ui-bootstrap4@3.0.7/dist/ui-bootstrap-tpls-3.0.7.min.js"></script>
-  <script src="main.js"></script>
 </head>
 
-<body ng-controller="RootCtrl as $vm" class="d-flex flex-column h-100">
-  <div class="background"></div>
-  <main style="margin-bottom: 30px">
-    <nav class="navbar bg-body-tertiary mb-3">
-      <div class="container-fluid">
-        <div class="navbar-brand">
-          <span class="fg-font">Overwatch Texture Viewer</span>
-        </div>
-      </div>
-    </nav>
-
-    <div class="text-muted mb-3 text-center" style="font-size: 12px;">
-      Select a version to view all texture changes for that version. Filter by state to view only new, removed, or updated textures.<br>
-      A <span class="text-danger">red outline</span> means the texture was removed.
-    </div>
-
-    <div class="container-fluid text-center" style="max-width: 2200px;">
-      <form class="justify-content-center gap-3 d-flex mb-3">
-        <div class="span4-5">
-          <label class="form-label mb-1">Search</label>
-          <input type="text" class="form-control mb-3 mx-auto avatar-search" placeholder="Search for texture..." ng-model="$vm.searchText" ng-change="$vm.onSearchChange()">
-        </div>
-
-        <div style="width: 150px;">
-          <label class="form-label mb-1">Version</label>
-          <select class="form-select form-select" ng-model="$vm.filterVersion" ng-disabled="$vm.loading" ng-change="$vm.onVersionChange()">
-            <option ng-repeat="version in $vm.versions" ng-value="version.id">{{::version.name}}</option>
-          </select>
-        </div>
-
-        <div style="width: 150px;">
-          <label class="form-label mb-1">State</label>
-          <select class="form-select form-select" ng-model="$vm.filterState" ng-disabled="$vm.loading" ng-change="$vm.onStateChange()">
-            <option ng-value="0">All</option>
-            <option ng-value="1">New</option>
-            <option ng-value="2">Removed</option>
-            <option ng-value="3">Updated</option>
-          </select>
-        </div>
-
-        <div style="width: 150px;">
-          <label class="form-label mb-1">Page Size</label>
-          <select class="form-select form-select" ng-model="$vm.pageSize" ng-disabled="$vm.loading" ng-change="$vm.onPageSizeChange()">
-            <option ng-value="100">100</option>
-            <option ng-value="500">500</option>
-            <option ng-value="1000">1000</option>
-            <option ng-value="2000">2000</option>
-            <option ng-value="4000">4000</option>
-            <option ng-value="$vm.totalItems">All (may cause issues)</option>
-          </select>
-        </div>
-
-        <div style="width: 150px;">
-          <label class="form-label mb-1">Image Size</label>
-          <button type="button" class="btn btn-outline-secondary text-white w-100" ng-click="$vm.toggleImageSize()">
-            {{ $vm.isLargeImage ? 'Large' : 'Small' }}
-          </button>
-        </div>
-      </form>
-
-      <div class="alert alert-danger" ng-show="$vm.loadError && !$vm.loading">
-        Error loading data.
-      </div>
-
-      <div class="spinner-border m-4" role="status" ng-show="$vm.loading">
-        <span class="visually-hidden">Loading...</span>
-      </div>
-
-      <div ng-if="!$vm.loading">
-        <ul class="justify-content-center" ng-if="$vm.pageSize != $vm.allResults" uib-pagination total-items="items.length" items-per-page="$vm.pageSize" ng-model="$vm.currentPage" max-size="5"
-            boundary-links="true" rotate="true" previous-text="Prev" ng-change="$vm.onPageChange()"></ul>
-
-        <div class="d-flex flex-wrap justify-content-center gap-2 user-select-none mb-5 px-4" ng-class="{ 'large-img': $vm.isLargeImage }">
-          <div class="card card-texture card-clickable text-decoration-none d-flex flex-column justify-content-between align-items-center"
-               ng-class="{ 'texture-removed': item.is_removed }"
-               ng-repeat="item in items = ($vm.textures | filter:$vm.texturesFilter) | start: ($vm.currentPage - 1) * $vm.pageSize | limitTo: $vm.pageSize track by item.id"
-               ng-click="$vm.clickItem(item)">
-
-            <div class="image-container d-flex justify-content-center align-items-center flex-grow-1">
-              <img class="object-fit-contain flex-grow-1" ng-src="{{::item.url}}" loading="lazy">
-            </div>
-
-            <div class="text-muted flex-shrink-0 lh-1 mt-2">{{::item.id}}</div>
-          </div>
-
-          <div class="alert alert-info w-25" ng-if="items.length === 0 && !$vm.loading">No matches found.</div>
-        </div>
-
-        <ul class="justify-content-center mt-5" ng-if="$vm.pageSize != $vm.allResults" uib-pagination total-items="items.length" items-per-page="$vm.pageSize" ng-model="$vm.currentPage" max-size="5"
-            boundary-links="true" rotate="true" previous-text="Prev" ng-change="$vm.onPageChange()"></ul>
-      </div>
-    </div>
-  </main>
-
-  <footer class="footer mt-auto py-3 px-2 bg-dark text-white-50" style="font-size: 12px;">
-    This site is not affiliated with Blizzard Entertainment. All trademarks referenced herein are the properties of their respective owners.<br />
-    © 2025 Blizzard Entertainment, Inc.
-  </footer>
+<body class="h-full bg-gray-900 text-white">
+  <div id="root"></div>
 </body>
+</html>
